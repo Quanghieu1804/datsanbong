@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Sân Bóng 7 Người - Techcombank Auto Pay</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        pitch: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .time-slot-btn.active {
+            border-color: #16a34a;
+            background-color: #f0fdf4;
+            color: #15803d;
+            font-weight: 700;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+        }
+        .time-slot-btn.booked {
+            background-color: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navigation -->
+    <header class="bg-pitch-800 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2 rounded-full text-pitch-700 shadow-md">
+                    <i class="fa-solid fa-futbol text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg sm:text-xl leading-tight">HỆ THỐNG ĐẶT SÂN BÓNG 7 NGƯỜI</h1>
+                    <p class="text-xs text-pitch-200">Đặt sân nhanh chóng • Trận 90 phút • Xác nhận tự động</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <button id="navUserBtn" onclick="switchTab('user')" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-white text-pitch-800 shadow transition-all">
+                    <i class="fa-solid fa-[#16a34a] mr-1"></i>Đặt Sân
+                </button>
+                <button id="navAdminBtn" onclick="switchTab('admin')" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-pitch-700 hover:bg-pitch-600 text-white transition-all">
+                    <i class="fa-solid fa-user-shield mr-1"></i>Quản Lý
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl mx-auto px-4 py-6 w-full flex-grow">
+        
+        <!-- ================= USER VIEW ================= -->
+        <div id="userView" class="space-y-6">
+            
+            <!-- BẢNG THÔNG TIN SÂN & GIÁ -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <h2 class="text-base font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fa-solid fa-circle-info text-pitch-600 mr-2"></i> Bảng Giá & Quy Định Sân (90 Phút / Ca)
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                    <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-emerald-900">Ca Sáng & Trưa</p>
+                            <p class="text-xs text-emerald-600">07:30 - 17:00</p>
+                        </div>
+                        <span class="font-bold text-emerald-700 text-base">320.000đ</span>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-blue-900">Ca Tối (Giờ Vàng)</p>
+                            <p class="text-xs text-blue-600">17:00 - 21:30</p>
+                        </div>
+                        <span class="font-bold text-blue-700 text-base">400.000đ</span>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 p-3 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-amber-900">Thuê Bóng Thi Đấu</p>
+                            <p class="text-xs text-amber-600">Tùy chọn chọn thêm</p>
+                        </div>
+                        <span class="font-bold text-amber-700 text-base">25.000đ / quả</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM ĐẶT SÂN -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
+                <form id="bookingForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                    
+                    <!-- Bước 1: Chọn ngày & Chọn Sân bóng -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">1. Chọn Ngày Đá</label>
+                            <input type="date" id="bookingDate" onchange="renderSlots()" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pitch-500 focus:border-pitch-500 outline-none transition-all font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">2. Chọn Sân Bóng</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button type="button" onclick="selectPitch(1)" id="pitchBtn1" class="pitch-select-btn py-2.5 rounded-xl border border-gray-200 text-center font-bold text-sm hover:border-pitch-500 transition-all">Sân 1</button>
+                                <button type="button" onclick="selectPitch(2)" id="pitchBtn2" class="pitch-select-btn py-2.5 rounded-xl border border-gray-200 text-center font-bold text-sm hover:border-pitch-500 transition-all">Sân 2</button>
+                                <button type="button" onclick="selectPitch(3)" id="pitchBtn3" class="pitch-select-btn py-2.5 rounded-xl border border-gray-200 text-center font-bold text-sm hover:border-pitch-500 transition-all">Sân 3</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bước 2: Chọn Ca / Khung giờ 90 phút -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-semibold text-gray-700">3. Chọn Ca Đá (Thời lượng 90 phút)</label>
+                            <div class="flex items-center space-x-3 text-xs">
+                                <span class="flex items-center"><span class="w-3 h-3 bg-white border border-gray-300 rounded-full mr-1"></span>Trống</span>
+                                <span class="flex items-center"><span class="w-3 h-3 bg-pitch-100 border border-pitch-600 rounded-full mr-1"></span>Đang chọn</span>
+                                <span class="flex items-center"><span class="w-3 h-3 bg-red-100 border border-red-400 rounded-full mr-1"></span>Đã đặt</span>
+                            </div>
+                        </div>
+
+                        <div id="slotsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            <!-- Các nút ca đá sẽ được Render tự động bằng Javascript -->
+                        </div>
+                    </div>
+
+                    <!-- Bước 3: Dịch vụ bổ sung & Thông tin người đặt -->
+                    <div class="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Họ và tên người đặt</label>
+                                <input type="text" id="custName" required placeholder="Nhập họ và tên..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pitch-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                                <input type="tel" id="custPhone" required placeholder="09xxxxxxxx" pattern="[0-9]{9,11}" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pitch-500 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col justify-between">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Thuê bóng đá (25.000đ / quả)</label>
+                                <div class="flex items-center space-x-3">
+                                    <button type="button" onclick="changeBallQty(-1)" class="w-9 h-9 rounded-lg bg-white border border-gray-300 font-bold text-gray-600 hover:bg-gray-100 flex items-center justify-center">-</button>
+                                    <span id="ballQtyDisplay" class="font-bold text-lg w-8 text-center">0</span>
+                                    <button type="button" onclick="changeBallQty(1)" class="w-9 h-9 rounded-lg bg-white border border-gray-300 font-bold text-gray-600 hover:bg-gray-100 flex items-center justify-center">+</button>
+                                    <span class="text-xs text-gray-500">(Bóng tiêu chuẩn sân 7)</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-gray-200 flex justify-between items-end">
+                                <div>
+                                    <p class="text-xs text-gray-500">TỔNG THÀNH TIỀN</p>
+                                    <p id="totalPriceDisplay" class="text-2xl font-extrabold text-pitch-700">0 VNĐ</p>
+                                </div>
+                                <button type="submit" id="submitBookingBtn" disabled class="px-6 py-3 rounded-xl bg-gray-400 text-white font-bold cursor-not-allowed transition-all shadow-md">
+                                    Thanh Toán QR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= ADMIN VIEW ================= -->
+        <div id="adminView" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-800">Quản Lý Lịch Đặt Sân</h2>
+                    <p class="text-xs text-gray-500">Xem danh sách khách hàng đã đặt tiền thành công</p>
+                </div>
+                <input type="date" id="adminFilterDate" onchange="renderAdminBookings()" class="px-4 py-2 border rounded-xl text-sm font-medium">
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600">
+                            <tr>
+                                <th class="p-3.5">Mã Đơn</th>
+                                <th class="p-3.5">Sân</th>
+                                <th class="p-3.5">Khung Giờ</th>
+                                <th class="p-3.5">Khách Hàng</th>
+                                <th class="p-3.5">SĐT</th>
+                                <th class="p-3.5">Bóng Thuê</th>
+                                <th class="p-3.5">Tổng Tiền</th>
+                                <th class="p-3.5">Trạng Thái</th>
+                                <th class="p-3.5 text-center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBookingTable" class="divide-y divide-gray-100">
+                            <!-- Danh sách đặt sân được Render qua Javascript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4 mt-8">
+        <div class="max-w-5xl mx-auto px-4 text-center text-xs text-gray-500">
+            © 2026 Hệ Thống Quản Lý & Đặt Sân Bóng Đá 7 Người. Tự động xác nhận qua VietQR Techcombank.
+        </div>
+    </footer>
+
+    <!-- ================= MODAL THANH TOÁN QR (9 PHÚT) ================= -->
+    <div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl relative animate-fade-in">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <!-- Đếm ngược 9 Phút -->
+            <div class="inline-flex items-center space-x-2 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-bold mb-3 border border-amber-200">
+                <i class="fa-solid fa-clock animate-pulse"></i>
+                <span>Thời gian giữ ca: <strong id="countdownDisplay" class="text-sm">09:00</strong></span>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-800">Quét Mã QR Để Đặt Sân</h3>
+            <p class="text-xs text-gray-500 mt-1">Mở ứng dụng ngân hàng bất kỳ để quét thanh toán</p>
+
+            <!-- Mã QR VietQR -->
+            <div class="my-4 bg-gray-50 p-3 rounded-xl border border-gray-200 inline-block">
+                <img id="qrImage" src="" alt="Mã QR Thanh Toán" class="w-56 h-56 mx-auto rounded-lg shadow-sm">
+            </div>
+
+            <!-- Thông tin tài khoản -->
+            <div class="text-left bg-gray-50 p-3.5 rounded-xl border border-gray-200 text-xs space-y-1.5 font-medium mb-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Ngân hàng:</span>
+                    <span class="font-bold text-red-600">Techcombank (TCB)</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Số tài khoản:</span>
+                    <span class="font-bold text-gray-800 tracking-wider">11111804200666</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Số tiền:</span>
+                    <span id="modalAmount" class="font-extrabold text-pitch-700 text-sm">0 VNĐ</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Nội dung CK:</span>
+                    <span id="modalMemo" class="font-bold text-blue-600">DATSAN 09...</span>
+                </div>
+            </div>
+
+            <!-- Nút giả lập đã chuyển tiền -->
+            <div class="space-y-2">
+                <button onclick="simulateSuccessfulPayment()" class="w-full py-3 bg-pitch-600 hover:bg-pitch-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Tôi Đã Chuyển Khoản Xong</span>
+                </button>
+                <button onclick="closeModal()" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-xs rounded-xl transition-all">
+                    Hủy Giao Dịch
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Danh sách 8 ca đá chuẩn 90 phút trong ngày
+        const SLOTS = [
+            { id: 1, time: "07:30 - 09:00", price: 320000, type: "day" },
+            { id: 2, time: "09:00 - 10:30", price: 320000, type: "day" },
+            { id: 3, time: "14:00 - 15:30", price: 320000, type: "day" },
+            { id: 4, time: "15:30 - 17:00", price: 320000, type: "day" },
+            { id: 5, time: "17:00 - 18:30", price: 400000, type: "night" },
+            { id: 6, time: "18:30 - 20:00", price: 400000, type: "night" },
+            { id: 7, time: "20:00 - 21:30", price: 400000, type: "night" },
+            { id: 8, time: "21:30 - 23:00", price: 400000, type: "night" }
+        ];
+
+        // Trạng thái ứng dụng
+        let selectedPitch = 1;
+        let selectedSlot = null;
+        let ballQty = 0;
+        let countdownTimer = null;
+        let timeLeft = 540; // 9 phút = 540 giây
+        let pendingBooking = null;
+
+        // Khởi tạo app khi load trang
+        document.addEventListener('DOMContentLoaded', () => {
+            // Đặt ngày mặc định là hôm nay
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').value = today;
+            document.getElementById('adminFilterDate').value = today;
+
+            selectPitch(1);
+        });
+
+        // Đổi tab người dùng / Admin
+        function switchTab(tab) {
+            if (tab === 'user') {
+                document.getElementById('userView').classList.remove('hidden');
+                document.getElementById('adminView').classList.add('hidden');
+                document.getElementById('navUserBtn').className = "px-3 py-1.5 rounded-lg text-sm font-semibold bg-white text-pitch-800 shadow transition-all";
+                document.getElementById('navAdminBtn').className = "px-3 py-1.5 rounded-lg text-sm font-semibold bg-pitch-700 hover:bg-pitch-600 text-white transition-all";
+            } else {
+                document.getElementById('userView').classList.add('hidden');
+                document.getElementById('adminView').classList.remove('hidden');
+                document.getElementById('navAdminBtn').className = "px-3 py-1.5 rounded-lg text-sm font-semibold bg-white text-pitch-800 shadow transition-all";
+                document.getElementById('navUserBtn').className = "px-3 py-1.5 rounded-lg text-sm font-semibold bg-pitch-700 hover:bg-pitch-600 text-white transition-all";
+                renderAdminBookings();
+            }
+        }
+
+        // Chọn sân 1, 2, 3
+        function selectPitch(pitchNum) {
+            selectedPitch = pitchNum;
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`pitchBtn${i}`);
+                if (i === pitchNum) {
+                    btn.className = "pitch-select-btn py-2.5 rounded-xl border-2 border-pitch-600 bg-pitch-50 text-pitch-800 text-center font-bold text-sm shadow-sm";
+                } else {
+                    btn.className = "pitch-select-btn py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 text-center font-bold text-sm hover:border-pitch-400";
+                }
+            }
+            selectedSlot = null;
+            renderSlots();
+            updateTotal();
+        }
+
+        // Đọc dữ liệu đơn đã đặt từ LocalStorage
+        function getBookings() {
+            const data = localStorage.getItem('pitch_bookings');
+            return data ? JSON.parse(data) : [];
+        }
+
+        // Lưu đơn đặt
+        function saveBooking(booking) {
+            const bookings = getBookings();
+            bookings.push(booking);
+            localStorage.setItem('pitch_bookings', JSON.stringify(bookings));
+        }
+
+        // Render các ca đá 90 phút
+        function renderSlots() {
+            const container = document.getElementById('slotsContainer');
+            container.innerHTML = '';
+            
+            const date = document.getElementById('bookingDate').value;
+            const bookings = getBookings();
+
+            // Danh sách ID ca đá đã được cọc thành công trong ngày & sân này
+            const bookedSlotIds = bookings
+                .filter(b => b.date === date && b.pitch === selectedPitch && b.status === 'SUCCESS')
+                .map(b => b.slotId);
+
+            SLOTS.forEach(slot => {
+                const isBooked = bookedSlotIds.includes(slot.id);
+                const isSelected = selectedSlot && selectedSlot.id === slot.id;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                
+                if (isBooked) {
+                    btn.className = 'time-slot-btn booked border rounded-xl p-3 text-left transition-all';
+                    btn.disabled = true;
+                    btn.innerHTML = `
+                        <div class="font-bold text-sm">${slot.time}</div>
+                        <div class="text-xs font-semibold mt-1">ĐÃ ĐẶT SÂN</div>
+                    `;
+                } else {
+                    btn.className = `time-slot-btn border rounded-xl p-3 text-left transition-all ${isSelected ? 'active' : 'bg-white hover:border-pitch-500'}`;
+                    btn.onclick = () => {
+                        selectedSlot = slot;
+                        renderSlots();
+                        updateTotal();
+                    };
+                    btn.innerHTML = `
+                        <div class="font-bold text-sm text-gray-800">${slot.time}</div>
+                        <div class="text-xs font-bold ${slot.type === 'night' ? 'text-blue-600' : 'text-emerald-600'} mt-1">
+                            ${slot.price.toLocaleString('vi-VN')}đ
+                        </div>
+                    `;
+                }
+
+                container.appendChild(btn);
+            });
+        }
+
+        // Tăng giảm số lượng bóng
+        function changeBallQty(delta) {
+            ballQty = Math.max(0, ballQty + delta);
+            document.getElementById('ballQtyDisplay').innerText = ballQty;
+            updateTotal();
+        }
+
+        // Cập nhật tổng tiền
+        function updateTotal() {
+            const submitBtn = document.getElementById('submitBookingBtn');
+            let total = 0;
+
+            if (selectedSlot) {
+                total = selectedSlot.price + (ballQty * 25000);
+                submitBtn.disabled = false;
+                submitBtn.className = "px-6 py-3 rounded-xl bg-pitch-600 hover:bg-pitch-700 text-white font-bold cursor-pointer transition-all shadow-md";
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.className = "px-6 py-3 rounded-xl bg-gray-300 text-gray-500 font-bold cursor-not-allowed transition-all";
+            }
+
+            document.getElementById('totalPriceDisplay').innerText = total.toLocaleString('vi-VN') + " VNĐ";
+        }
+
+        // Xử lý gửi Form & Hiện Modal VietQR 9 phút
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            if (!selectedSlot) return;
+
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const date = document.getElementById('bookingDate').value;
+            const totalAmount = selectedSlot.price + (ballQty * 25000);
+            const memo = `DATSAN ${phone}`;
+
+            pendingBooking = {
+                id: 'BK' + Date.now().toString().slice(-6),
+                pitch: selectedPitch,
+                date: date,
+                slotId: selectedSlot.id,
+                slotTime: selectedSlot.time,
+                custName: name,
+                custPhone: phone,
+                ballQty: ballQty,
+                totalAmount: totalAmount,
+                memo: memo,
+                status: 'SUCCESS',
+                createdAt: new Date().toLocaleString('vi-VN')
+            };
+
+            // Tạo mã VietQR chuẩn Techcombank
+            const bankId = "TCB";
+            const accountNo = "11111804200666";
+            const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${totalAmount}&addInfo=${encodeURIComponent(memo)}`;
+
+            document.getElementById('qrImage').src = qrUrl;
+            document.getElementById('modalAmount').innerText = totalAmount.toLocaleString('vi-VN') + " VNĐ";
+            document.getElementById('modalMemo').innerText = memo;
+
+            // Bật Modal & Chạy đồng hồ 9 phút
+            document.getElementById('paymentModal').classList.remove('hidden');
+            start9MinCountdown();
+        }
+
+        // Đếm ngược 9 phút (540s)
+        function start9MinCountdown() {
+            clearInterval(countdownTimer);
+            timeLeft = 540;
+
+            function updateDisplay() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('countdownDisplay').innerText = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    alert("Đã hết thời gian 9 phút giữ ca! Vui lòng thao tác lại.");
+                    closeModal();
+                }
+                timeLeft--;
+            }
+
+            updateDisplay();
+            countdownTimer = setInterval(updateDisplay, 1000);
+        }
+
+        // Đóng Modal thanh toán
+        function closeModal() {
+            clearInterval(countdownTimer);
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        // Giả lập thanh toán thành công
+        function simulateSuccessfulPayment() {
+            if (!pendingBooking) return;
+
+            saveBooking(pendingBooking);
+            clearInterval(countdownTimer);
+            document.getElementById('paymentModal').classList.add('hidden');
+
+            alert(`🎉 CHÚC MỪNG!\nĐơn đặt sân ${pendingBooking.id} đã được xác nhận thành công.`);
+            
+            // Reset form
+            selectedSlot = null;
+            ballQty = 0;
+            document.getElementById('ballQtyDisplay').innerText = '0';
+            document.getElementById('bookingForm').reset();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').value = today;
+
+            selectPitch(1);
+        }
+
+        // Render bảng Admin
+        function renderAdminBookings() {
+            const tableBody = document.getElementById('adminBookingTable');
+            const filterDate = document.getElementById('adminFilterDate').value;
+            const bookings = getBookings().filter(b => b.date === filterDate);
+
+            tableBody.innerHTML = '';
+
+            if (bookings.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-gray-400">Không có đơn đặt sân nào trong ngày ${filterDate}</td></tr>`;
+                return;
+            }
+
+            bookings.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50';
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold text-gray-700">${b.id}</td>
+                    <td class="p-3.5"><span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-bold text-xs">Sân ${b.pitch}</span></td>
+                    <td class="p-3.5 font-semibold text-gray-800">${b.slotTime}</td>
+                    <td class="p-3.5 font-medium">${b.custName}</td>
+                    <td class="p-3.5 font-mono text-gray-600">${b.custPhone}</td>
+                    <td class="p-3.5">${b.ballQty} quả</td>
+                    <td class="p-3.5 font-bold text-pitch-700">${b.totalAmount.toLocaleString('vi-VN')}đ</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 bg-green-100 text-green-700 font-bold text-xs rounded-full">Đã Cọc QR</span></td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="deleteBooking('${b.id}')" class="text-red-500 hover:text-red-700 p-1">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Hủy đơn đặt ở trang Admin
+        function deleteBooking(bookingId) {
+            if (confirm("Bạn có chắc chắn muốn xóa/hủy đơn đặt sân này?")) {
+                let bookings = getBookings();
+                bookings = bookings.filter(b => b.id !== bookingId);
+                localStorage.setItem('pitch_bookings', JSON.stringify(bookings));
+                renderAdminBookings();
+                renderSlots();
+            }
+        }
+    </script>
+</body>
+</html>
